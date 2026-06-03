@@ -8,7 +8,7 @@
 
 **Repo layout:** This is a monorepo. The git root is `/Users/lynne.ashminov/projects/AgentDemo`; the Ruby project lives in `repo-doctor-ruby/`. Worktrees are created at the git root, but all bundle/rspec/binary commands run from inside `repo-doctor-ruby/`. Branch names and PRs are against the outer `stantonSB/AgentDemo` repository.
 
-**Fork workflow:** The local git user (`lynne-ashminov`) does not have push access to `stantonSB/AgentDemo`. Each agent must push to a personal fork (`lynne-ashminov/AgentDemo`) and open a cross-repo PR against `stantonSB/AgentDemo:main`. The fork already exists (created by the renderer-fix agent). Agents use `gh repo fork --remote=false` if needed (idempotent — no-op if fork exists) and push via `git push -u <fork-remote> <branch>`.
+**Fork workflow:** The local git user (`lynne-ashminov`) does not have push access to `stantonSB/AgentDemo`. Each agent pushes to the personal fork `lynne-ashminov/AgentDemo` and opens the PR **against the fork's own `main`** (not against `stantonSB/AgentDemo:main`). The fork already exists with the `fork` remote configured locally, and its `main` branch is the baseline (includes the renderer fix from PR #19). Agents push via `git push -u fork <branch>` and run `gh pr create --repo lynne-ashminov/AgentDemo --base main`.
 
 **Tech Stack:** Ruby (rbenv-managed), RSpec, Bundler, `Open3` for shell-out, git worktrees, GitHub CLI (`gh`).
 
@@ -190,15 +190,17 @@ When tests are green and smoke tests look correct:
 1. `git add <<ANALYZER_FILE>> <<SPEC_FILE>>` (use paths relative to the git
    root, i.e. prefixed with `repo-doctor-ruby/`)
 2. `git commit -m "feat(<<ANALYZER_NAME>>): implement <<ANALYZER_NAME>> analyzer"`
-3. The `origin` remote (`stantonSB/AgentDemo`) is read-only for you. Push to a
-   personal fork instead:
+3. The `origin` remote (`stantonSB/AgentDemo`) is read-only for you. A
+   personal fork is already configured as the `fork` remote
+   (`lynne-ashminov/AgentDemo`). Push your branch there:
    ```
-   gh repo fork --remote=true --remote-name=fork || true
    git push -u fork feat/<<ANALYZER_NAME>>-analyzer
    ```
-   `gh repo fork` is idempotent — if your fork already exists it just configures
-   the remote.
-4. Open the PR with `gh pr create --repo stantonSB/AgentDemo`. Title:
+4. Open the PR against the fork's own `main`:
+   ```
+   gh pr create --repo lynne-ashminov/AgentDemo --base main --head feat/<<ANALYZER_NAME>>-analyzer
+   ```
+   Title:
    `feat(<<ANALYZER_NAME>>): implement <<ANALYZER_NAME>> analyzer`.
    Body must include:
    - One-sentence summary
