@@ -6,6 +6,8 @@
 
 **Architecture:** The main session does orchestration only. Each of the 8 analyzers is built by a single fresh subagent inside its own worktree. Each subagent follows TDD (write failing spec → implement → green) and opens a PR when done. Analyzers are completely independent — they share no code beyond `BaseAnalyzer`.
 
+**Repo layout:** This is a monorepo. The git root is `/Users/lynne.ashminov/projects/AgentDemo`; the Ruby project lives in `repo-doctor-ruby/`. Worktrees are created at the git root, but all bundle/rspec/binary commands run from inside `repo-doctor-ruby/`. Branch names and PRs are against the outer `stantonSB/AgentDemo` repository.
+
 **Tech Stack:** Ruby (rbenv-managed), RSpec, Bundler, `Open3` for shell-out, git worktrees, GitHub CLI (`gh`).
 
 ---
@@ -114,6 +116,9 @@ test suite and an open PR.
 
 ## Workflow (TDD, strict)
 
+0. `cd repo-doctor-ruby` — the Ruby project is a subdirectory of the git repo.
+   All bundle/rspec/binary commands run from there. File paths below
+   (`lib/analyzers/...`, `spec/analyzers/...`) are relative to that subdirectory.
 1. Create a new branch in this worktree:
    `git checkout -b feat/<<ANALYZER_NAME>>-analyzer`
 2. Write your spec at <<SPEC_FILE>> covering ALL acceptance criteria for your
