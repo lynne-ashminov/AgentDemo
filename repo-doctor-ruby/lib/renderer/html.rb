@@ -1,3 +1,4 @@
+require "time"
 require_relative "../types"
 
 class ReportRenderer
